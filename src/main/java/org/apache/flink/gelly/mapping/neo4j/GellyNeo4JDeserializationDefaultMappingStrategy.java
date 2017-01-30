@@ -60,7 +60,7 @@ public class GellyNeo4JDeserializationDefaultMappingStrategy<V extends Map<Strin
 		Collection<Edge<Long, E>> edges = item.f1;
 
 		StringBuilder builder = new StringBuilder();
-		builder.append("UNWIND $nodes as node\n");
+		builder.append("UNWIND {nodes} as node\n");
 		builder.append("CREATE (n)\n");
 		builder.append("SET n = node, ");
 
@@ -72,15 +72,17 @@ public class GellyNeo4JDeserializationDefaultMappingStrategy<V extends Map<Strin
 			builder.append(labelsDefinition.toString());
 			builder.append(", ");
 		}
+		// TODO: should throw an error if there isn't at least a label
+		
 		builder.append("n.labels = null\n");
 		builder.append("WITH n\n");
 
-		builder.append("UNWIND $relationships as relationship\n");
+		builder.append("UNWIND {relationships} as relationship\n");
 		builder.append("MATCH (n {id: relationship.startNode}), (v2" + labelsDefinition.toString()
 				+ " {id: relationship.endNode})\n");
 		builder.append("MERGE (n)-[r:");
 
-		// There is always a type
+		// TODO: There should be always a type otherwise throw an error
 		Object type = edges.iterator().next().f2.get("type");
 		builder.append(type);
 
